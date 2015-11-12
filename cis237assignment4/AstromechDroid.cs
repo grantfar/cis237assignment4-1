@@ -6,62 +6,101 @@ using System.Threading.Tasks;
 
 namespace cis237assignment4
 {
-    //Class that inherits from the Utility Droid
-    class AstromechDroid : UtilityDroid
+    class AstromechDroid:UtilityDroid
     {
-        //class level variables unique to this class. Set as protected so children classes can access them.
-        protected bool hasFireExtinguisher;
-        protected int numberOfShips;
+        private bool fireExtinquisher;
+        private int numberOfShips;
+        private const decimal pricePerShip = 100m;
 
-        //Protected constant for the cost per ship. Children can access this too.
-        protected decimal COST_PER_SHIP = 45.00m;
-
-        //Constructor that uses the Base Constuctor to do most of the work.
-        public AstromechDroid(string Material, string Model, string Color,
-            bool HasToolbox, bool HasComputerConnection, bool HasArm, bool HasFireExtinquisher, int NumberOfShips) :
-            base(Material, Model, Color, HasToolbox, HasComputerConnection, HasArm)
+        public AstromechDroid(String material, String color, bool Toolbox, bool ComputerConnection, bool Arm, bool FireExtinquisher, int NumberOfShips)
+            : base(material, "astromech", color, Toolbox, ComputerConnection, Arm)
         {
-            //Assign the values for the constructor that are not handled by the base constructor
-            this.hasFireExtinguisher = HasFireExtinquisher;
-            this.numberOfShips = NumberOfShips;
+            fireExtinquisher=FireExtinquisher;
+            numberOfShips=NumberOfShips;
+            CalculateTotalCost();
         }
-
-        //Overridden method to calculate the cost of options. Uses the base class to do some of the calculations
-        protected override decimal CalculateCostOfOptions()
-        {
-            decimal optionsCost = 0;
-
-            optionsCost += base.CalculateCostOfOptions();
-
-            if (hasFireExtinguisher)
-            {
-                optionsCost += COST_PER_OPTION;
-            }
-
-            return optionsCost;
-        }
-
-        //Protected virtual method that can be overriden in child classes.
-        //Caclulates the cost of ships.
-        protected virtual decimal CalculateCostOfShips()
-        {
-            return COST_PER_SHIP * numberOfShips;
-        }
-
-        //Overriden method to calculate the total cost. Uses work from the base class to achive the answer.
+        /// <summary>
+        /// calculates the cost of the droid
+        /// based on the features it has
+        /// </summary>
         public override void CalculateTotalCost()
         {
-            this.CalculateBaseCost();
-
-            this.totalCost = this.baseCost + this.CalculateCostOfOptions() + this.CalculateCostOfShips();
+            base.CalculateTotalCost();
+            if (fireExtinquisher)
+                base.totalCost += 150m;
+            base.totalCost += decimal.Multiply(pricePerShip, numberOfShips);
         }
 
-        //Overriden ToString method to output the information for this droid. Uses work done in the base class
+        /// <summary>
+        /// this is a methiod to create the part of the toString that
+        /// lists all the equiped options
+        /// </summary>
+        /// <returns></returns>
+        protected override string optionsString()
+        {
+            string returnString = base.optionsString();
+            if (returnString.Equals("no options") && fireExtinquisher)
+            {
+                    returnString = "a fire extinquisher";
+            }
+            else if(returnString.Contains("and") && fireExtinquisher)
+            {
+                returnString = returnString.Remove(returnString.IndexOf("and"), 4) + ", and a fire extinquisher";
+            }
+            else if(fireExtinquisher)
+            {
+                returnString += ", and a fire extinquisher";
+            }
+            return returnString;
+        }
+
+        /// <summary>
+        /// returns an instance of AstromechDroid based of the prompts
+        /// </summary>
+        /// <returns></returns>
+        public static new Droid CreateDroid()
+        {
+            bool toolBoxTmp, computerConnectionTmp, armTmp, fireExtinquisherTmp;
+            string material, color;
+            int shipsSupportedTmp;
+            
+            Console.WriteLine("Please input the droids material");
+            material = Console.ReadLine();
+            
+            Console.WriteLine("Please input the droids color");
+            color = Console.ReadLine();
+            
+            Console.WriteLine("has a toolbox? (y/n)");
+            toolBoxTmp = Droid.yesOrNo();
+            
+            Console.WriteLine("has a computer connection? (y/n)");
+            computerConnectionTmp = Droid.yesOrNo();
+            
+            Console.WriteLine("has a arm? (y/n)");
+            armTmp = Droid.yesOrNo();
+            
+            Console.WriteLine("has a fireExtinquisher? (y/n)");
+            fireExtinquisherTmp = Droid.yesOrNo();
+            
+            Console.WriteLine("number of supported ships");
+            //prevents bad input
+            while(!int.TryParse(Console.ReadLine(),out shipsSupportedTmp))
+            {
+                //deletes bad input from the console
+                int currentLineInt = Console.CursorTop - 1;
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.Write(new string(' ', Console.WindowWidth));
+                Console.SetCursorPosition(0, currentLineInt);
+            }
+            
+            return new AstromechDroid(material, color, toolBoxTmp, computerConnectionTmp, armTmp,fireExtinquisherTmp,shipsSupportedTmp);
+        }
+        
         public override string ToString()
         {
-            return base.ToString() +
-                "Has Fire Extinguisher: " + this.hasFireExtinguisher + Environment.NewLine +
-                "Number Of Ships: " + this.numberOfShips + Environment.NewLine;
+            String returnString = base.ToString();
+            //removes the base option string and adds its own
+            return returnString.Substring(0, returnString.IndexOf("with") + 5) + optionsString() + ", suporting " + numberOfShips + " ships Costing " + TotalCost + " Credits";
         }
     }
 }

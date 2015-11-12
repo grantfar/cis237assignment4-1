@@ -6,67 +6,100 @@ using System.Threading.Tasks;
 
 namespace cis237assignment4
 {
-    //Derived from the abstract class Droid. Can be instanciated
     class UtilityDroid : Droid
     {
-        //Class level variables that can be used in this class, or any children of this class
-        protected bool hasToolbox;
-        protected bool hasComputerConnection;
-        protected bool hasArm;
-
-        //A constant that can be used in this class or any child classes
-        protected const decimal COST_PER_OPTION = 35.00m;
-
-        //Constructor that takes the standard parameters, and ones specific to this droid.
-        //Calls the base constructor to do some of the work already written in the droid class.
-        public UtilityDroid(string Material, string Model, string Color, bool HasToolbox, bool HasComputerConnection, bool HasArm) : base(Material, Model, Color)
+        private bool toolBox, computerConnection, arm;
+        public UtilityDroid(String material, String color, bool Toolbox, bool ComputerConnection, bool Arm) : base(material, "utility", color) 
         {
-            this.hasToolbox = HasToolbox;
-            this.hasComputerConnection = HasComputerConnection;
-            this.hasArm = HasArm;
+            toolBox = Toolbox;
+            computerConnection = ComputerConnection;
+            arm = Arm;
+            CalculateTotalCost();
+        }
+        /// <summary>
+        /// only for extending this class
+        /// </summary>
+        /// <param name="material"></param>
+        /// <param name="model"></param>
+        /// <param name="color"></param>
+        /// <param name="Toolbox"></param>
+        /// <param name="ComputerConnection"></param>
+        /// <param name="Arm"></param>
+        protected UtilityDroid(String material, String model, String color, bool Toolbox, bool ComputerConnection, bool Arm): base(material, model, color) 
+        {
+            toolBox = Toolbox;
+            computerConnection = ComputerConnection;
+            arm = Arm;
         }
 
-        //virtual method to calculate the cost of the options. This method can be overridden in child classes
-        //to calculate the cost of options
-        protected virtual decimal CalculateCostOfOptions()
-        {
-            decimal optionsCost = 0;
-
-            if (hasToolbox)
-            {
-                optionsCost += COST_PER_OPTION;
-            }
-
-            if (hasComputerConnection)
-            {
-                optionsCost += COST_PER_OPTION;
-            }
-
-            if (hasArm)
-            {
-                optionsCost += COST_PER_OPTION;
-            }
-
-            return optionsCost;
-        }
-
-        //Overridden method to calculate the total cost. This method uses the base cost from the parent droid class,
-        //and the cost of the options of this class to create the total cost.
+        /// <summary>
+        /// calculates the cost of the droid
+        /// based on the features it has
+        /// </summary>
         public override void CalculateTotalCost()
         {
-            this.CalculateBaseCost();
-
-            this.totalCost = this.baseCost + this.CalculateCostOfOptions();
+            base.totalCost = base.baseCost;
+            if(toolBox)
+                base.totalCost += 500m;
+            if(computerConnection)
+                base.totalCost += 700m;
+            if (arm)
+                base.totalCost += 300m;
         }
-
-        //Overridden ToString method to output the information for this droid.
-        //uses the base ToString method and appends more information to it.
+        /// <summary>
+        /// this is a methiod to create the part of the toString that
+        /// lists all the equiped options
+        /// </summary>
+        /// <returns></returns>
+        protected virtual string optionsString()
+        {
+            List<String> returnStrings = new List<string>();
+            String returnString = "";
+            if (!(toolBox || computerConnection || arm))
+                return "no options";
+            if (toolBox)
+                returnStrings.Add("a toolbox");
+            if (computerConnection)
+                returnStrings.Add("a computer connections");
+            if (arm)
+                returnStrings.Add("an arm");
+            for(int i = 0; i < returnStrings.Count-1; i++)
+                returnString += returnStrings[i] + ", "; 
+            if (returnStrings.Count != 1)
+                returnString += "and ";
+            returnString += returnStrings[returnStrings.Count - 1];
+            return returnString;
+        }
         public override string ToString()
         {
-            return base.ToString() +
-                "Has Tool Box: " + this.hasToolbox + Environment.NewLine +
-                "Has Computer Connection: " + this.hasComputerConnection + Environment.NewLine +
-                "Has Arm: " + this.hasArm + Environment.NewLine;
+            return base.ToString() + " with " + optionsString() + " Costing " + TotalCost + " Credits";
+        }
+
+        /// <summary>
+        /// returns an instance of UtilityDroid based of the prompts
+        /// </summary>
+        /// <returns></returns>
+        public static new Droid CreateDroid()
+        {
+            bool toolBoxTmp, computerConnectionTmp, armTmp;
+            string material, color;
+            
+            Console.WriteLine("Please input the droids material");
+            material = Console.ReadLine();
+            
+            Console.WriteLine("Please input the droids color");
+            color = Console.ReadLine();
+            
+            Console.WriteLine("has a toolbox? (y/n)");
+            toolBoxTmp = Droid.yesOrNo();
+            
+            Console.WriteLine("has a computer connection? (y/n)");
+            computerConnectionTmp = Droid.yesOrNo();
+            
+            Console.WriteLine("has a arm? (y/n)");
+            armTmp = Droid.yesOrNo();
+            
+            return new UtilityDroid(material, color, toolBoxTmp, computerConnectionTmp, armTmp);
         }
     }
 }

@@ -6,35 +6,68 @@ using System.Threading.Tasks;
 
 namespace cis237assignment4
 {
-    //Class that is instantiable. It inherits from the abstract droid class
-    class ProtocolDroid : Droid
+    class ProtocolDroid:Droid
     {
-        //Private variables unique to this class
-        protected int numberOfLanguages;
-        protected const decimal COST_PER_LANGUAGE = 25.00m;
-        
-        //Constructor that takes in the standard parameters, and the number of languages it knows.
-        //The base constructor is called to do the work of assigning the standard parameters
-        public ProtocolDroid(string Material, string Model, string Color, int NumberOfLanguages) : base(Material, Model, Color)
+        private int numOfLanguages;
+        private const decimal costPerLanguage = 300m;
+
+        public int NumOfLanguages
         {
-            this.numberOfLanguages = NumberOfLanguages;
+            get { return numOfLanguages; }
+            set { numOfLanguages = value; }
         }
 
-        //Overriden abstract method from the droid class.
-        //It calculates the total cost using the baseCost method.
+        protected ProtocolDroid(int NumLanguages, String Material, String Model, String Color): base(Material,Model,Color)
+        {
+            numOfLanguages = NumLanguages;
+        }
+
+        public ProtocolDroid(int NumLanguages, String Material, String Color)
+            : base(Material, "protocol", Color)
+        {
+            numOfLanguages = NumLanguages;
+            CalculateTotalCost();
+        }
+        
+        /// <summary>
+        /// calculates the cost of the droid
+        /// based on the features it has
+        /// </summary>
         public override void CalculateTotalCost()
         {
-            //Calculate the base cost
-            this.CalculateBaseCost();
-            //Calculate the total cost using the result of the base cost
-            this.totalCost = this.baseCost + (numberOfLanguages * COST_PER_LANGUAGE);
+            base.totalCost = base.baseCost + (numOfLanguages * costPerLanguage);
         }
 
-        //Override the ToString method to use the base ToString, and append new information to it.
         public override string ToString()
         {
-            return base.ToString() +
-                "Number Of Languages: " + this.numberOfLanguages + Environment.NewLine;
+            return base.ToString() + " supporting " + numOfLanguages + " languages Costing " + TotalCost + " Credits";
+        }
+
+        /// <summary>
+        /// returns an instance of ProtocolDroid based of the prompts
+        /// </summary>
+        /// <returns></returns>
+        public static new Droid CreateDroid()
+        {
+            string material, color;
+            int numOfLanguagesTmp;
+
+            Console.WriteLine("Please input the droids material");
+            material = Console.ReadLine();
+            
+            Console.WriteLine("Please input the droids color");
+            color = Console.ReadLine();
+            
+            Console.WriteLine("number of supported languages");
+            while (!int.TryParse(Console.ReadLine(), out numOfLanguagesTmp))
+            {
+                int currentLineInt = Console.CursorTop -1;
+                Console.SetCursorPosition(0, Console.CursorTop -1);
+                Console.Write(new string(' ', Console.WindowWidth));
+                Console.SetCursorPosition(0, currentLineInt);
+            }
+            
+            return new ProtocolDroid(numOfLanguagesTmp,material, color);
         }
     }
 }

@@ -6,65 +6,81 @@ using System.Threading.Tasks;
 
 namespace cis237assignment4
 {
-    //Abstract class that implements the IDroid interface
-    abstract class Droid : IDroid
+    abstract class Droid: IDroid,IComparable
     {
-        //some protected variables for the class
-        protected string material;
-        protected string model;
-        protected string color;
-
-        protected decimal baseCost;
+        private string material, model, color;
         protected decimal totalCost;
-
-        //The public property for TotalCost
+        protected decimal baseCost;
+        public Droid(String Material, String Model, String Color)
+        {
+            CalculateBaseCost(new droidModelPrice[] { new droidModelPrice("astromech", 1100m), new droidModelPrice("protocol", 1500m), new droidModelPrice("janitor", 1000m), new droidModelPrice("utility", 800m) });
+            material = Material;
+            model = Model;
+            color = Color;
+        }
+        
+        protected void CalculateBaseCost(droidModelPrice[] droidCosts)
+        {
+            foreach(droidModelPrice d in droidCosts)
+                if (d.model.Equals(model))
+                    baseCost = d.price;
+        }
+        
+        public abstract void CalculateTotalCost();
+        
         public decimal TotalCost
         {
-            get { return totalCost; }
-            set { totalCost = value; }
-        }
-
-        //Constructor that takes the main 3 parameters shared amongst all 4 types of droids
-        public Droid(string Material, string Model, string Color)
-        {
-            this.material = Material;
-            this.model = Model;
-            this.color = Color;
-        }
-
-        //Virtual method that can be overridden in the derived classes if needed.
-        //This implementation calculates the cost based on the material used for the droid
-        protected virtual void CalculateBaseCost()
-        {
-            switch (this.material)
+            get
             {
-                case "Carbonite":
-                    this.baseCost = 100.00m;
-                    break;
-
-                case "Vanadium":
-                    this.baseCost = 120.00m;
-                    break;
-
-                case "Quadranium":
-                    this.baseCost = 150.00m;
-                    break;
-
-                default:
-                    this.baseCost = 50.00m;
-                    break;
+                return totalCost;
+            }
+            set
+            {
+                totalCost = value;
             }
         }
-
-        //Abstract method that MUST be overriden in the derived class to calculate the total cost
-        public abstract void CalculateTotalCost();
-
-        //Overriden toString method that will return a string representing the basic information for any droid
+        
         public override string ToString()
         {
-            return "Material: " + this.material + Environment.NewLine +
-                    "Model: " + this.model + Environment.NewLine +
-                    "Color: " + this.color + Environment.NewLine;
+            return "a " + color + " " + material + " " + model + " droid";
+        }
+        
+        /// <summary>
+        /// A methiod for creating droids
+        /// </summary>
+        /// <returns></returns>
+        
+        public static Droid CreateDroid()
+        {
+            return null;
+        }
+        
+        /// <summary>
+        /// This is a methiod for yes or no inputs
+        /// </summary>
+        /// <returns></returns>
+        protected static bool yesOrNo()
+        {
+            //random char
+            char pressed = 'u';
+            while(!(pressed == 'y' || pressed == 'Y' || pressed == 'n' || pressed == 'N'))
+            {
+                //deletes the previous keypress from the console
+                int currentLineInt = Console.CursorTop;
+                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.Write(new string(' ', 1));
+                Console.SetCursorPosition(0, currentLineInt);
+                
+                pressed = Console.ReadKey().KeyChar;
+            }
+            Console.WriteLine("");
+            //returns true if yes
+            return pressed == 'y' || pressed == 'Y';
+        }
+
+        public int CompareTo(object obj)
+        {
+            return this.TotalCost.CompareTo(((Droid)obj).TotalCost);
         }
     }
 }
